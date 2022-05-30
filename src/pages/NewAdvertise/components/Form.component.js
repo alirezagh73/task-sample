@@ -5,13 +5,32 @@ import {citiesData} from "data/data";
 import {ApartmantInputComponent} from "./apartmantInput.component";
 import {HouseInputComponent} from "./houseInput.component";
 import {useNavigate} from "react-router-dom";
+// import Map , {Marker , GeolocateControl} from 'react-map-gl';
+import MapPicker from "react-google-map-picker";
 
-import {GET_STATE, NEW_ADD} from "../../../redux/slices/state.slice";
+import {GET_STATE, NEW_ADD} from "redux/slices/state.slice";
 
+
+const DefaultLocation = { lat: 32.4279, lng: 53.6880 };
+const DefaultZoom = 15;
 
 function FormComponent({children}) {
     const [selectedFiles, setSelectedFiles] = useState([])
     const [imageURLs, setImageURLs] = useState([])
+    const [defaultLocation, setDefaultLocation] = useState(DefaultLocation);
+
+    const [location, setLocation] = useState(defaultLocation);
+    const [zoom, setZoom] = useState(DefaultZoom);
+
+    console.log(location)
+    function handleChangeLocation(lat, lng) {
+        setLocation({ lat: lat, lng: lng });
+    }
+
+    function handleChangeZoom(newZoom) {
+        setZoom(newZoom);
+    }
+
     const cityArr = Object.values(citiesData).flat()
     const formName = useSelector(state => state.statesState.formName)
     const navigate= useNavigate()
@@ -38,7 +57,6 @@ function FormComponent({children}) {
     }
 
 
-
     const handleSubmit = (event) => {
         event.preventDefault()
         const data = new FormData(event.target);
@@ -57,11 +75,14 @@ function FormComponent({children}) {
             elevator: data.get("elevator"),
             parking: data.get("parking"),
             warehouse: data.get("warehouse"),
-            balcon: data.get("balcon")
+            balcon: data.get("balcon"),
+            lat : location.lat ,
+            lng: location.lng
 
         }
         console.log(properties)
-        dispatch(NEW_ADD(data.get("title"),
+        dispatch(NEW_ADD(
+            data.get("title"),
             data.get("phone"),
             data.get("description"),
             properties,
@@ -92,6 +113,24 @@ function FormComponent({children}) {
                     name="city"
                 />
             </div>
+
+            <div className=' mt-8'>
+
+
+                <MapPicker
+                    defaultLocation={defaultLocation}
+                    zoom={zoom}
+                    style={{ height: "400px"  }}
+                    onChangeLocation={handleChangeLocation}
+                    onChangeZoom={handleChangeZoom}
+                    apiKey="AIzaSyAkBhTU6Tc8FNdu64ZRG4rPm2bin7H7OOI"
+                />
+
+
+
+            </div>
+
+
 
             <div className='mt-8'>
                 <h3 className="text-lg">عکس آگهی</h3>

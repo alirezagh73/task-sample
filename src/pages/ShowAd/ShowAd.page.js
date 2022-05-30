@@ -1,11 +1,19 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useSelector} from "react-redux";
 import {SliderComponent} from "./components/slider.component";
+import MapPicker from "react-google-map-picker";
+
+
+const DefaultZoom = 15;
 
 function ShowAdPage(props) {
 
     const newAdd = useSelector(state => state.statesState.showAd)
     const formName = useSelector(state => state.statesState.formName)
+
+    const DefaultLocation = {lat: newAdd.properties.lat, lng: newAdd.properties.lng};
+    const [zoom, setZoom] = useState(DefaultZoom);
+
     console.log(newAdd)
 
     return (
@@ -88,9 +96,18 @@ function ShowAdPage(props) {
                 </div>
 
 
-                <div className='h-96 mt-6'>
+                <div className='h-96 my-6 '>
 
                     <SliderComponent images={newAdd.images}/>
+
+                    <MapPicker
+                        defaultLocation={DefaultLocation}
+                        zoom={zoom}
+                        style={{height: "400px" , margin : "16px 0 16px  0"}}
+                        // onChangeLocation={handleChangeLocation}
+                        // onChangeZoom={handleChangeZoom}
+                        apiKey="AIzaSyAkBhTU6Tc8FNdu64ZRG4rPm2bin7H7OOI"
+                    />
 
                 </div>
             </div>

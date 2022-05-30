@@ -11,20 +11,23 @@ import MapPicker from "react-google-map-picker";
 import {GET_STATE, NEW_ADD} from "redux/slices/state.slice";
 
 
-const DefaultLocation = { lat: 32.4279, lng: 53.6880 };
+const DefaultLocation = {lat: 32.4279, lng: 53.6880};
 const DefaultZoom = 15;
 
 function FormComponent({children}) {
     const [selectedFiles, setSelectedFiles] = useState([])
     const [imageURLs, setImageURLs] = useState([])
     const [defaultLocation, setDefaultLocation] = useState(DefaultLocation);
-
+    const [city , setCity] = useState('')
+    const [showMap , setShowMap] = useState(false)
+    console.log(defaultLocation)
     const [location, setLocation] = useState(defaultLocation);
     const [zoom, setZoom] = useState(DefaultZoom);
 
-    console.log(location)
+    // console.log(location)
+
     function handleChangeLocation(lat, lng) {
-        setLocation({ lat: lat, lng: lng });
+        setLocation({lat: lat, lng: lng});
     }
 
     function handleChangeZoom(newZoom) {
@@ -33,7 +36,7 @@ function FormComponent({children}) {
 
     const cityArr = Object.values(citiesData).flat()
     const formName = useSelector(state => state.statesState.formName)
-    const navigate= useNavigate()
+    const navigate = useNavigate()
     const dispatch = useDispatch()
     const cityOption = cityArr.map(item => {
         return {
@@ -41,6 +44,8 @@ function FormComponent({children}) {
             label: item
         }
     })
+
+
 
     useEffect(() => {
 
@@ -50,6 +55,7 @@ function FormComponent({children}) {
         setImageURLs(newImageUrls)
 
     }, [selectedFiles])
+
 
     const handleUploadImage = (e) => {
 
@@ -76,7 +82,7 @@ function FormComponent({children}) {
             parking: data.get("parking"),
             warehouse: data.get("warehouse"),
             balcon: data.get("balcon"),
-            lat : location.lat ,
+            lat: location.lat,
             lng: location.lng
 
         }
@@ -91,12 +97,24 @@ function FormComponent({children}) {
         navigate("/show")
     }
 
+    const handleCityName = (e)=>{
+        setShowMap(true)
+        fetch(`https://iran-locations-api.vercel.app/api/v1/cities?state=${e.value}`)
+            .then(response => response.json())
+            .then(json => setDefaultLocation({
+                lat : +json.latitude ,
+                lng: +json.longitude
+            }))
+
+    }
+
     return (
         <form className='mb-14' onSubmit={handleSubmit}>
             <h2 className='text-xl font-medium'>ثبت آگهی </h2>
             <div className='mt-8 w-full py-10 border border-gray-300 rounded flex justify-between items-center px-4 '>
                 <span className='text-gray-700'>{formName}</span>
-                <button className='text-red-700 font-medium p-2 hover:bg-red-50 rounded  transition-colors' onClick={()=>dispatch(GET_STATE())}>تغییر دسته
+                <button className='text-red-700 font-medium p-2 hover:bg-red-50 rounded  transition-colors'
+                        onClick={() => dispatch(GET_STATE())}>تغییر دسته
                     بندی
                 </button>
             </div>
@@ -111,25 +129,26 @@ function FormComponent({children}) {
                     isSearchable={true}
                     options={cityOption}
                     name="city"
+                    onChange={handleCityName}
                 />
             </div>
 
             <div className=' mt-8'>
 
 
-                <MapPicker
-                    defaultLocation={defaultLocation}
-                    zoom={zoom}
-                    style={{ height: "400px"  }}
-                    onChangeLocation={handleChangeLocation}
-                    onChangeZoom={handleChangeZoom}
-                    apiKey="AIzaSyAkBhTU6Tc8FNdu64ZRG4rPm2bin7H7OOI"
-                />
-
+                {
+                    showMap ? <MapPicker
+                        defaultLocation={defaultLocation}
+                        zoom={zoom}
+                        style={{height: "400px"}}
+                        onChangeLocation={handleChangeLocation}
+                        onChangeZoom={handleChangeZoom}
+                        apiKey="AIzaSyAkBhTU6Tc8FNdu64ZRG4rPm2bin7H7OOI"
+                    /> : ""
+                }
 
 
             </div>
-
 
 
             <div className='mt-8'>
@@ -209,7 +228,9 @@ function FormComponent({children}) {
             </div>
 
             <div className='mt-8 flex justify-end gap-x-8'>
-                <button className='border border-gray-400 py-1 px-2 w-32  rounded hover:bg-gray-100' onClick={()=>dispatch(GET_STATE())}>انصراف</button>
+                <button className='border border-gray-400 py-1 px-2 w-32  rounded hover:bg-gray-100'
+                        onClick={() => dispatch(GET_STATE())}>انصراف
+                </button>
                 <button type='submit'
                         className='border bg-red-600 text-white py-1 px-2 w-32 h-10  rounded hover:bg-red-500'>ارسال
                     آگهی
